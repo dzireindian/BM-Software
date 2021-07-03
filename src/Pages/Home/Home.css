@@ -1,0 +1,9 @@
+.homebanner{
+    height: 40vh;
+    margin-left: 0px;
+    margin-right: 0px;
+}
+
+.homebody{
+    height: -webkit-fill-available;
+}
