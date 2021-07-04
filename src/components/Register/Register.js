@@ -1,10 +1,11 @@
 import React,{useRef,useContext} from "react";
 import ReactDom from "react-dom";
-import userContext from "../../App"
+import {userContext} from "../../App"
 import firedb from "../../firebase"
 
 var valid = true;
-var user;
+// let userstate,dispatch;
+let user;
 
 function emailValidation()
 {
@@ -12,7 +13,7 @@ function emailValidation()
   infoRef.innerHTML = '';
   var mail = document.getElementById('Email').value;
   let cmail = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
-  user.Dispatch({type:"register",email: mail});
+  user.dispatch({type:user.Actions.Register,email: mail});
   console.log(user);
         if(mail === ""){
           document.getElementById('email-log').innerHTML = "Email cannot be empty";
@@ -125,9 +126,12 @@ onClick={() => {
 
 var Register = (props) =>{
 
+  // console.log(useContext(userContext))
   user = useContext(userContext);
-  console.log("in register");
-  console.log(user)
+  // console.log(user);
+  // let val = user.userstate.hasOwnProperty(user.Actions.Register)?user.userstate[user.Actions.Register]['email']:"";
+  // console.log("in register");
+  // console.log(user.userstate)
   return (
     <form class="needs-validation">
     <p id="form-info" className="text-center text-danger"></p>

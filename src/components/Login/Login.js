@@ -1,4 +1,5 @@
-import React, { Component } from "react";
+import React, { useContext } from "react";
+import {userContext} from "../../App"
 import firedb from "../../firebase";
 function Signin() {
   const mail = document.getElementById('logEmail');
@@ -8,6 +9,8 @@ function Signin() {
 }
 
 var Login = (props) =>{
+  let user = useContext(userContext);
+  console.log(user)
 
   return (
     <form class="needs-validation">

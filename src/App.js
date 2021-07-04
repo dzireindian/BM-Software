@@ -5,11 +5,17 @@ import './App.css';
 
 export var userContext = React.createContext();
 
+let Actions = {Register : "register",
+Logout: "reset"
+};
+
 var initialState = {};
 const reducer = (state,action) => {
     switch(action.type){
-      case "reset":
+      case Actions.Logout:
         return initialState
+      case Actions.Register:
+        return {...state,"register":{email : action.email}}
       default:
         return state
     }
@@ -19,7 +25,7 @@ function App() {
   let [userstate,dispatch] = useReducer(reducer,initialState);
   return (
     <div className="App">
-    <userContext.Provider value={{userState:userstate,Dispatch:dispatch}}>
+    <userContext.Provider value={{userstate,dispatch,Actions}}>
     <BrowserRouter basename='/proadminer'>
       <Switch>
       <Route path="/" component={Home}></Route>
