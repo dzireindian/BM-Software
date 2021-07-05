@@ -1,11 +1,11 @@
-import React,{useRef,useContext} from "react";
+import React,{useRef,useContext,useState} from "react";
 import ReactDom from "react-dom";
 import {userContext} from "../../App"
 import firedb from "../../firebase"
 
 var valid = true;
 // let userstate,dispatch;
-let user;
+let user,info,setInfo;
 
 function emailValidation()
 {
@@ -96,31 +96,66 @@ async function Signup(){
 
 let OTP = (props) => {
   let otpRef = useRef(null);
-  let otpText = useRef(null);
   let infoRef = document.getElementById('form-info');
+  infoRef.innerHTML = "";
+  console.log("otp =",props.otp);
   return (<>
     <input onChange={ ()=> {
-      if(otpRef.current.value !== props.otp){
-        otpText.current.innerHTML = "Incorrect otp";
+      console.log("input ref =",otpRef.current.value !== props.otp);
+      if(otpRef.current.value === ""){
+        infoRef.innerHTML = "otp can not be empty";
         valid = false;
       }
-      if(otpRef.current.value === ""){
-        otpText.current.innerHTML = "otp can not be empty";
+      else if(otpRef.current.value !== props.otp){
+        infoRef.innerHTML = "Incorrect otp";
         valid = false;
       }
       else{
-        otpText.current.innerHTML = "";
+        infoRef.innerHTML = "";
         valid = true;
       }
     }} ref={otpRef} id="otp" type="text" class="form-control" placeholder="Enter otp sent to your mail" aria-label="Recipient's username" aria-describedby="button-addon2"></input>
 <button id="otpverify" class="btn btn-outline-secondary" type="button" id="button-addon2" 
 onClick={() => {
-  if(valid === false){
-    infoRef.innerHTML = 'otp does not match';
-  }else{
+  if(valid === true){
     Signup()
   }
-}}>verify</button><div className="form-control"><p ref={otpText} className="text-danger"></p></div></>);
+}}>verify</button></>);
+
+}
+
+async function userCheck(props){
+    setInfo(<><div class="spinner-grow text-primary" role="status">
+    <span class="visually-hidden">Loading...</span>
+  </div><div class="spinner-grow text-primary" role="status">
+  <span class="visually-hidden">Loading...</span>
+  </div><div class="spinner-grow text-primary" role="status">
+  <span class="visually-hidden">Loading...</span>
+  </div></>);
+  // const userRef = firedb.collection('users');
+
+  try{
+    await firedb.collection('users').doc(props.email.value).get().then((snapshot)=>{
+      // snapshot = snapshot.get();
+      console.log(snapshot.exists);
+      if (snapshot.exists) {
+        setInfo("User already exists")
+      }else{
+          props.email.disabled = true;
+          props.pwrd.disabled = true;
+          props.cpwrd.disabled = true;
+          props.regBtn.disabled = true;
+        let randint = 100000 + Math.random() * (999999 - 100000);
+        randint = randint.toString();
+        
+        ReactDom.render(<OTP otp={randint}></OTP>,document.getElementById('otpblock'));
+      }
+    });
+    
+  } catch(e) {
+    setInfo("Poor Internet Connection");
+    console.log("error =",e)
+  }
 
 }
 
@@ -128,13 +163,14 @@ var Register = (props) =>{
 
   // console.log(useContext(userContext))
   user = useContext(userContext);
+  [info,setInfo] = useState("");
   // console.log(user);
   let val = user.userstate.hasOwnProperty(user.Actions.Register)?user.userstate[user.Actions.Register]['email']:"";
   // console.log("in register");
   // console.log(user.userstate)
   return (
     <form class="needs-validation">
-    <p id="form-info" className="text-center text-danger"></p>
+    <p id="form-info" className="text-center text-danger">{info}</p>
     <div class="mb-3 row">
     <label for="staticEmail" class="col-sm-2 col-form-label">Email</label>
     <div class="col-sm-10">
@@ -186,13 +222,7 @@ var Register = (props) =>{
     }
 
     if(valid === true){
-      email.disabled = true;
-      pwrd.disabled = true;
-      cpwrd.disabled = true;
-      regBtn.disabled = true;
-      let randint = 100000 + Math.random() * (999999 - 100000);
-      randint = randint.toString();
-      ReactDom.render(<OTP otp={randint}></OTP>,document.getElementById('otpblock'));
+      userCheck({infoRef,email,pwrd,cpwrd,regBtn});
     }
   }
   }>Register</button>
