@@ -129,7 +129,7 @@ var Register = (props) =>{
   // console.log(useContext(userContext))
   user = useContext(userContext);
   // console.log(user);
-  // let val = user.userstate.hasOwnProperty(user.Actions.Register)?user.userstate[user.Actions.Register]['email']:"";
+  let val = user.userstate.hasOwnProperty(user.Actions.Register)?user.userstate[user.Actions.Register]['email']:"";
   // console.log("in register");
   // console.log(user.userstate)
   return (
@@ -138,7 +138,7 @@ var Register = (props) =>{
     <div class="mb-3 row">
     <label for="staticEmail" class="col-sm-2 col-form-label">Email</label>
     <div class="col-sm-10">
-      <input type="text" class="form-control" id="Email" onChange={emailValidation}></input>
+      <input type="text" class="form-control" id="Email" value={val} onChange={emailValidation}></input>
     </div>
   </div>
   <div class="mb-3 row">
@@ -178,20 +178,21 @@ var Register = (props) =>{
     if(email.value==="" | pwrd.value==="" | cpwrd.value===""){
       infoRef.innerHTML = "input fields cannot be empty"
       valid = false;
+      return;
     }
-    
-    if(valid === false){
+    else if(valid === false){
       infoRef.innerHTML = 'Invalid input entries';
+      return;
     }
 
     if(valid === true){
-    email.disabled = true;
-    pwrd.disabled = true;
-    cpwrd.disabled = true;
-    regBtn.disabled = true;
-    let randint = 100000 + Math.random() * (999999 - 100000);
-    randint = randint.toString();
-    ReactDom.render(<OTP otp={randint}></OTP>,document.getElementById('otpblock'));
+      email.disabled = true;
+      pwrd.disabled = true;
+      cpwrd.disabled = true;
+      regBtn.disabled = true;
+      let randint = 100000 + Math.random() * (999999 - 100000);
+      randint = randint.toString();
+      ReactDom.render(<OTP otp={randint}></OTP>,document.getElementById('otpblock'));
     }
   }
   }>Register</button>
