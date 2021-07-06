@@ -7,6 +7,7 @@ export var userContext = React.createContext();
 
 let Actions = {Register : "register",
 Login:"login",
+Loggedin:"loggedin",
 Logout: "reset"
 };
 
@@ -19,6 +20,8 @@ const reducer = (state,action) => {
         return {...state,"register":{email : action.email}}
       case Actions.Login:
         return {...state,"login":{email : action.email}}
+      case Actions.Loggedin:
+        return {...state,"loggedin":action.loginPayload}
       default:
         return state
     }

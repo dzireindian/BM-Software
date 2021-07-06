@@ -1,10 +1,46 @@
 import React, { useContext } from "react";
+import ReactDom from "react-dom";
 import {userContext} from "../../App"
 import firedb from "../../firebase";
 function Signin() {
   const mail = document.getElementById('logEmail');
-  var query = firedb.collection('users').where('email', '==', mail.value).get();
-  console.log(query.empty);
+  const log = document.getElementById('log-register');
+  const pwrd = document.getElementById('logPassword');
+  ReactDom.render(<><><div class="spinner-grow text-primary" role="status">
+  <span class="visually-hidden">Loading...</span>
+    </div><div class="spinner-grow text-primary" role="status">
+    <span class="visually-hidden">Loading...</span>
+    </div><div class="spinner-grow text-primary" role="status">
+    <span class="visually-hidden">Loading...</span>
+    </div></></>,log);
+  try{
+  firedb.collection('users').doc(mail.value).get().then((snapshot)=>{
+      var valid = false;
+      if(snapshot.exists == false){
+        log.innerHTML = "Email not registered"
+      }else{
+        let data = snapshot.data();
+        console.log("data upon fetching");
+        console.log(data);
+        const Cryptr = require('cryptr');
+        const cryptr = new Cryptr(process.env.REACT_APP_HASH_KEY);
+        let password = cryptr.decrypt(data['password']);
+        console.log("retrieved password = ",cryptr.decrypt(data['password']),"typed password =",pwrd.value);
+        console.log("check condition",(password !== pwrd.value));
+        if(password !== pwrd.value){
+          pwrd.innerHTML = "Incorrect password"
+        }else{
+          valid = true;
+        }
+      }
+
+      if(valid === true){
+        console.log("logged in")
+      }
+  });
+}catch(e){
+  log.innerHTML = "Poor Internet Connection"
+}
 
 }
 
