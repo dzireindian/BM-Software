@@ -1,41 +1,28 @@
-import {BrowserRouter,Route,Switch} from "react-router-dom";
+import {BrowserRouter,Redirect,Route,Switch} from "react-router-dom";
+// import {useHistory} from "react-router-dom";
 import React,{useReducer} from "react";
 import Home from "./Pages/Home";
+import UserDashBoard from "./Pages/userDashBoard"
 import './App.css';
 
-export var userContext = React.createContext();
-
-let Actions = {Register : "register",
-Login:"login",
-Loggedin:"loggedin",
-Logout: "reset"
-};
-
-var initialState = {};
-const reducer = (state,action) => {
-    switch(action.type){
-      case Actions.Logout:
-        return initialState
-      case Actions.Register:
-        return {...state,"register":{email : action.email}}
-      case Actions.Login:
-        return {...state,"login":{email : action.email}}
-      case Actions.Loggedin:
-        return {...state,"loggedin":action.loginPayload}
-      default:
-        return state
-    }
-}
+import {userContext,reducer,Actions} from "./utils/contextProvider"
 
 function App() {
-  let [userstate,dispatch] = useReducer(reducer,initialState);
+  // history = useHistory();
+  // console.log('history =',history)
+  let [userstate,dispatch] = useReducer(reducer,{});
   return (
     <div className="App">
     <userContext.Provider value={{userstate,dispatch,Actions}}>
-    <BrowserRouter basename='/proadminer'>
-      <Switch>
-      <Route path="/" component={Home}></Route>
-      </Switch>
+    <BrowserRouter>
+        <Switch>
+        <Route exact path="/">
+          {userstate.hasOwnProperty(Actions.Loggedin)?(<Redirect to="/user"></Redirect>) : <Home/>}
+        </Route>
+        <Route exact path="/user">
+        {userstate.hasOwnProperty(Actions.Loggedin)?<UserDashBoard/> : (<Redirect to="/"></Redirect>)}
+        </Route>
+        </Switch>
     </BrowserRouter>
     </userContext.Provider>
     </div>

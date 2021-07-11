@@ -1,6 +1,7 @@
 import React,{useRef,useContext,useState} from "react";
 import ReactDom from "react-dom";
-import {userContext} from "../../App"
+import {userContext} from "../../utils/contextProvider"
+import {Dencrypter} from "../../utils/Dencrypter"
 import firedb from "../../firebase"
 
 var valid = true;
@@ -72,20 +73,23 @@ function cpasswordalidation(){
 
 async function Signup(){
 
-  const Cryptr = require('cryptr');
-    const cryptr = new Cryptr(process.env.REACT_APP_HASH_KEY);
-
     var email = document.getElementById('Email');
     var password = document.getElementById('Password');
     var cpassword = document.getElementById('Cpassword');
 
-    password = cryptr.encrypt(password.value);
+    password = Dencrypter.passwordEncrypt(password.value);
 
     var payload = {"email":email.value,"password":password,"organizations":[],"tasks:":[]};
     console.log(payload);
 
     await firedb.collection("users").doc(email.value).set(payload)
       .then(() => {
+          
+          let token = Dencrypter.jwtEncrypt(payload);
+
+          // window.loaction = "/user/"+token;
+          user.dispatch({type: user.Actions.Loggedin, loginPayload: payload})
+
           console.log("Document successfully written!");
       })
       .catch((error) => {
@@ -161,8 +165,8 @@ async function userCheck(props){
 
 var Register = (props) =>{
 
-  // console.log(useContext(userContext))
   user = useContext(userContext);
+  // console.log(useContext(userContext))
   [info,setInfo] = useState("");
   // console.log(user);
   let val = user.userstate.hasOwnProperty(user.Actions.Register)?user.userstate[user.Actions.Register]['email']:"";

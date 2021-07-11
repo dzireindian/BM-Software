@@ -1,7 +1,11 @@
 import React, { useContext } from "react";
 import ReactDom from "react-dom";
-import {userContext} from "../../App"
+import {userContext} from "../../utils/contextProvider";
+import {Dencrypter} from "../../utils/Dencrypter";
 import firedb from "../../firebase";
+
+let user;
+
 function Signin() {
   const mail = document.getElementById('logEmail');
   const log = document.getElementById('log-register');
@@ -16,26 +20,34 @@ function Signin() {
   try{
   firedb.collection('users').doc(mail.value).get().then((snapshot)=>{
       var valid = false;
-      if(snapshot.exists == false){
+      var token, data;
+      if(snapshot.exists === false){
         log.innerHTML = "Email not registered"
       }else{
-        let data = snapshot.data();
+        data = snapshot.data();
         console.log("data upon fetching");
         console.log(data);
-        const Cryptr = require('cryptr');
-        const cryptr = new Cryptr(process.env.REACT_APP_HASH_KEY);
-        let password = cryptr.decrypt(data['password']);
-        console.log("retrieved password = ",cryptr.decrypt(data['password']),"typed password =",pwrd.value);
+
+        // const Cryptr = require('cryptr');
+        // const cryptr = new Cryptr(process.env.REACT_APP_HASH_KEY);
+        let password = Dencrypter.passwordDecrypt(data['password'])
+        // let password = cryptr.decrypt(data['password']);
+        console.log("retrieved password = ",password,"typed password =",pwrd.value);
         console.log("check condition",(password !== pwrd.value));
         if(password !== pwrd.value){
           pwrd.innerHTML = "Incorrect password"
         }else{
+          // let jwt = require('jwt-simple');
+          // token = jwt.encode(data , process.env.REACT_APP_HASH_KEY, 'HS512');
+          token = Dencrypter.jwtEncrypt(data);
           valid = true;
         }
       }
 
       if(valid === true){
-        console.log("logged in")
+        console.log("logged in");
+        // window.location = "/user/"+token;
+        user.dispatch({type:user.Actions.Loggedin, loginPayload: data});
       }
   });
 }catch(e){
@@ -45,7 +57,7 @@ function Signin() {
 }
 
 var Login = (props) =>{
-  let user = useContext(userContext);
+  user = useContext(userContext);
   console.log(user.userstate.hasOwnProperty(user.Actions.Login));
   let email = user.userstate.hasOwnProperty(user.Actions.Login)?user.userstate[user.Actions.Login]['email']:"";
   return (
@@ -55,7 +67,7 @@ var Login = (props) =>{
     <div class="col-sm-10">
       <input onChange={()=>{
         // console.log(event);
-        let key = user.userstate.Login;
+        // let key = user.userstate.Login;
         // console.log(event.target.value);
         user.dispatch({type:user.Actions.Login,"email":document.getElementById('logEmail').value})
         console.log(user);
@@ -73,7 +85,7 @@ var Login = (props) =>{
   <p id="log-register" className="text-danger"></p>
   </div>
 
-  <button type="button" class="btn btn-info" onClick={Signin}>Sign In</button>
+  <button type="button" class="btn btn-info" onClick={()=>{Signin()}}>Sign In</button>
     </form>);
   
 }

@@ -1,13 +1,23 @@
-import React, {useState} from "react";
-import ReactDOM from "react-dom";
+import React, {useState,useContext} from "react";
+import {Redirect} from "react-router-dom";
 import Register from "../../components/Register";
-import userState from "../../App";
+import {userContext} from "../../utils/contextProvider";
 import Login from "../../components/Login";
 import './Home.css';
 
-  function Home() {
-
+  function Home(props) {
+    let user = useContext(userContext);
     let [login,setLogin] = useState(false);
+
+    console.log("context before logging in ");
+    console.log(user);
+
+    let logdata = user.userstate
+    if(logdata.hasOwnProperty(user.Actions.Loggedin)){
+      props.history.push("/user")
+      // return (<Redirect to="/user"></Redirect>)
+    }
+
     var body = login?(<Login/>):(<Register/>);
     let logTab = login?"nav-link active":"nav-link";
     let regTab = login?"nav-link":"nav-link active";
